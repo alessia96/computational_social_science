@@ -21,7 +21,6 @@ from gensim.models.ldamodel import LdaModel
 import pyLDAvis
 import pyLDAvis.gensim_models as gensimvis
 
-
 # CLEAN, TOKENIZE AND LEMMATIZE
 
 # load the dataset
@@ -45,7 +44,7 @@ def clean(text):
 
 
 stop_words = set(stopwords.words("english"))
-nlp = spacy.load('en_core_web_sm')
+# nlp = spacy.load('en_core_web_sm')
 wordnet_lemmatizer = WordNetLemmatizer()
 
 df['clean'] = df.apply(lambda row: clean(row['post']), axis=1)
@@ -226,5 +225,27 @@ def plot_models_results(train_scores, test_scores, group=0):
     plt.show()
 
 
+# get train and test scores for all classification methods
 train_score, test_score = classification(tfidf[tfidf.columns[2:]], tfidf.GROUP, test_size=0.2)
 plot_models_results(train_score, test_score, group=0)
+
+
+# select bipolar and borderline subreddits
+b = tfidf.loc[tfidf.SUBREDDIT.str.contains('orderline')]
+b = b.append(tfidf.loc[tfidf.SUBREDDIT.str.contains('ipolar')])
+
+# group = 0 if borderline, group = 1 if bipolar
+b['GROUP'] = [0 if 'orderline' in i else 1 for i in b.SUBREDDIT]
+
+# compute train and test scores for borderline and bipolar
+train_score2, test_score2 = classification(b[b.columns[2:]], b.GROUP, test_size=0.2)
+
+# create dataframe containing all scores for both groups
+stats = pd.DataFrame({'method': [i[0] for i in train_score],
+                      'full_train': [i[1] for i in train_score],
+                      'full_test': [i[1] for i in test_score],
+                      'b_train': [i[1] for i in train_score2],
+                      'b_test': [i[1] for i in test_score2]})
+
+print(stats)
+
