@@ -27,6 +27,7 @@ import pyLDAvis.gensim_models as gensimvis
 df = pd.read_csv('/PATH/subreddit_data.csv')
 
 
+# clean text
 def clean(text):
     # all lowercase
     text = text.lower()
@@ -73,16 +74,64 @@ non_mental_lemmas = ','.join(list(non_mental['lemma'].values))
 borderline_lemmas = ','.join(list(border['lemma'].values))
 bipolar_lemmas = ','.join(list(bipolar['lemma'].values))
 
-# Create a WordCloud object
-wordcloud = WordCloud(background_color="white", max_words=5000, contour_width=3, contour_color='steelblue')
 
-# Generate a word cloud
-wordcloud.generate(mental_lemmas)
+# plot top-n words
+def plot_top_words(lemma_lst, quantity=10, color='blue'):
+    tokens = nltk.tokenize.WhitespaceTokenizer().tokenize(lemma_lst)
+    freq = nltk.FreqDist(tokens)
+    freq = pd.DataFrame({"Word": list(freq.keys()), "Frequency": list(freq.values())})
 
-# Visualize the word cloud
-wordcloud.to_image()
+    # reverse the order -- bigger on the top
+    freq = freq.nlargest(columns="Frequency", n=quantity)[::-1]
 
-# do the same for all lemmas objects
+    fig, ax = plt.subplots(figsize=(8, 10), dpi=80)
+    # change plot background color
+    ax.set_facecolor('lightgrey')
+
+    # horizontal bar plot
+    ax.barh(freq['Word'], freq['Frequency'],
+            height=0.8,
+            color=color,
+            edgecolor='black',
+            zorder=3)
+    # set x, y ticks
+    labels = [i for i in freq.Word]
+    ax.set_yticks(range(quantity))
+    ax.set_yticklabels(labels)
+    ax.set_xticks(range(0, max(freq.Frequency) + 5000, 5000))
+    ax.set_xlim(0, max(freq.Frequency) + 5000)
+
+    # horizontal lines
+    ax.grid(zorder=0, axis='y', which='major',
+            alpha=0.6, linewidth=0.4)
+    ax.grid(zorder=0, axis='x', which='major',
+            alpha=0.6, linewidth=0.4)
+
+    # remove borders
+    for i in ['top', 'bottom', 'right', 'left']:
+        ax.spines[i].set_visible(False)
+
+    # remove tick marks
+    ax.yaxis.set_ticks_position('none')
+
+    ax.set_title(f'Top {quantity} Words', fontsize=18)
+    plt.show()
+
+
+# plot wordcloud
+def plot_wordcloud(lemma_lst):
+    # create wordcloud object
+    wordcloud = WordCloud(background_color="black", max_words=5000, contour_width=3, contour_color='steelblue')
+    # generate wordcloud
+    wordcloud.generate(lemma_lst)
+    # Visualize wordcloud
+    wordcloud.to_image().show()
+
+
+# example plot top 25 words and wordcloud for borderline subreddits
+
+plot_top_words(borderline_lemmas, 25, 'violet')
+plot_wordcloud(borderline_lemmas)
 
 
 # LDA
