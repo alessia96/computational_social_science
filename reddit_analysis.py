@@ -102,9 +102,7 @@ def plot_top_words(lemma_lst, quantity=10, color='blue'):
     ax.set_xlim(0, max(freq.Frequency) + 5000)
 
     # horizontal lines
-    ax.grid(zorder=0, axis='y', which='major',
-            alpha=0.6, linewidth=0.4)
-    ax.grid(zorder=0, axis='x', which='major',
+    ax.grid(zorder=0, axis='both', which='major',
             alpha=0.6, linewidth=0.4)
 
     # remove borders
@@ -141,11 +139,11 @@ def compute_coherence_values(dictionary, corpus, texts, limit, start=2, step=1):
     coherence_values = []
     model_list = []
     for num_topics in range(start, limit, step):
-        print('num_topics:', num_topics)
+        print(f'number of topics: {num_topics}')
         model = LdaModel(corpus=corpus,
                          id2word=id2word,
                          num_topics=num_topics,
-                         random_state=0,
+                         random_state=42,
                          chunksize=100,
                          alpha='auto',
                          per_word_topics=True)
@@ -157,6 +155,7 @@ def compute_coherence_values(dictionary, corpus, texts, limit, start=2, step=1):
     return model_list, coherence_values
 
 
+# example with Borderline subreddits
 # select "Borderline" subreddits
 data = df.loc[df.subreddit.str.contains('orderline')]
 
@@ -169,13 +168,13 @@ id2word = Dictionary(data)
 corpus = [id2word.doc2bow(text) for text in data]
 
 # compute best LDA model with different k (number of topics)
-model_list, coherence_values = compute_coherence_values(dictionary=id2word, corpus=corpus, texts=data, start=2,
-                                                        limit=20, step=2)
-
-# plot a graph with the results
 limit = 20
 start = 2
-step = 2
+step = 1
+model_list, coherence_values = compute_coherence_values(dictionary=id2word, corpus=corpus, texts=data, start=start,
+                                                        limit=limit, step=step)
+
+# plot a graph with the results
 x = range(start, limit, step)
 plt.plot(x, coherence_values, ls='-', marker='o')
 plt.xlabel("Num Topics")
@@ -189,8 +188,10 @@ optimal_model = model_list[best_result_index]
 
 # produce a pyLDAvis visualization of the optimal model and save it
 p = gensimvis.prepare(optimal_model, corpus, id2word)
-pyLDAvis.save_html(p, '/PATH/p_borderline.html')
+pyLDAvis.save_html(p, '/home/a/p_borderline.html')
 
+# save the model
+optimal_model.save('/PATH/lda_model.model')
 
 # TFIDF
 
