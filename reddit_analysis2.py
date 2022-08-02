@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import spacy
+import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -11,6 +12,8 @@ from sklearn.naive_bayes import BernoulliNB, ComplementNB, MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report
 
+
+df = pd.read_csv('/PATH/subreddit_cleaned.csv')
 
 # TFIDF
 

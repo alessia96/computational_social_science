@@ -45,6 +45,8 @@ df['token'] = df.apply(lambda row: nltk.word_tokenize(row['clean']), axis=1)
 df['lemma'] = df.token.apply(lambda lst: [wordnet_lemmatizer.lemmatize(word, pos='v') for word in lst])
 df.lemma = [' '.join(i) for i in df.lemma]
 
+# save cleaned df
+df.to_csv('/PATH/subreddit_cleaned.csv')
 
 # ANALYSIS
 
