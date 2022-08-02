@@ -25,6 +25,9 @@ tfidf.insert(loc=0, column="SUBREDDIT", value=df.subreddit)
 
 
 # MODELS AND PREDICTIONS
+subreddit = ['ADHD', 'autism', 'Bipolar', 'BipolarReddit', 'Borderline', 'BorderlinePDisorder',
+             'CPTSD', 'OCD', 'ptsd', 'schizoaffective', 'schizophrenia', 'anxiety', 'depression',
+             'EDAnonymous', 'socialanxiety', 'suicidewatch', 'lonely', 'addiction', 'alcoholism']
 
 # assign subreddits to target
 # 0=mental health; 1=non-mental health
