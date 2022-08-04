@@ -26,7 +26,6 @@ tfidf = pd.DataFrame(tfidf.todense())
 tfidf.columns = cv.get_feature_names()
 tfidf.insert(loc=0, column="SUBREDDIT", value=df.subreddit)
 
-
 # MODELS AND PREDICTIONS
 subreddit = ['ADHD', 'autism', 'Bipolar', 'BipolarReddit', 'Borderline', 'BorderlinePDisorder',
              'CPTSD', 'OCD', 'ptsd', 'schizoaffective', 'schizophrenia', 'anxiety', 'depression',
@@ -109,7 +108,7 @@ def plot_models_results(train_scores, test_scores, group=0):
                    zorder=3,
                    linewidth=2)
 
-    ax.grid(zorder=0, axis='y', which='major', alpha=0.6, linewidth=0.4)    # horizontal lines
+    ax.grid(zorder=0, axis='y', which='major', alpha=0.6, linewidth=0.4)  # horizontal lines
     # add xtick labels
     labels = ['\n'.join(i[0].split()) for i in train_scores]
     ax.set_xticks(range(len(train_scores)))
@@ -133,7 +132,6 @@ def plot_models_results(train_scores, test_scores, group=0):
 train_score, test_score = classification(tfidf[tfidf.columns[2:]], tfidf.GROUP, test_size=0.2)
 plot_models_results(train_score, test_score, group=0)
 
-
 # repeat all for Bipolar and Borderline
 # select bipolar and borderline subreddits
 btfidf = tfidf.loc[tfidf.SUBREDDIT.str.contains('orderline')]
@@ -151,15 +149,15 @@ btfidf["GROUP"] = btarget
 
 train_score2, test_score2 = classification(btfidf[btfidf.columns[1:]], btfidf.GROUP, test_size=0.2)
 
-
 # create dataframe containing all scores for both groups
 performances = pd.DataFrame({'method': [i[0] for i in train_score],
-                      'full_train': [i[1] for i in train_score],
-                      'full_test': [i[1] for i in test_score],
-                      'b_train': [i[1] for i in train_score2],
-                      'b_test': [i[1] for i in test_score2]})
+                             'full_train': [i[1] for i in train_score],
+                             'full_test': [i[1] for i in test_score],
+                             'b_train': [i[1] for i in train_score2],
+                             'b_test': [i[1] for i in test_score2]})
 
 print(performances)
+
 
 # returns summary as R
 def summary(model, X, y, features):
@@ -183,10 +181,10 @@ def summary(model, X, y, features):
     p_val = np.round(p_val, 7)
     sig = ['*' if p <= 0.05 else "" for p in p_val[0]]
     res = pd.DataFrame({"estimate": model.coef_[0],
-                  "std. error": se[0],
-                  "t-statistic": t_stat[0],
-                  "p-value": p_val[0],
-                  "": sig})
+                        "std. error": se[0],
+                        "t-statistic": t_stat[0],
+                        "p-value": p_val[0],
+                        "": sig})
     res.index = features
     return res
 
@@ -203,7 +201,6 @@ def plot_conf_matrix(y_test, y_pred):
     confusion matrix plot
     """
     cm = confusion_matrix(y_test, y_pred)
-    # Create a dataframe with the confussion matrix values
     df_cm = pd.DataFrame(cm, range(cm.shape[0]), range(cm.shape[1]))
     sns.heatmap(df_cm, annot=True, fmt='.0f')
     plt.show()
@@ -233,12 +230,66 @@ def plot_roc(y_test, y_pred):
     plt.show()
 
 
+def top_estimates(model, X, y, features):
+    """
+    Parameters
+    ----------
+    model: fitted model e.g. LogisticRegression
+    X: predictors used to fit the model
+    y: response variable used to fit the model
+    features: feature names
+
+    Returns
+    -------
+    g1: top 25 features group1 with summary
+    g2: top 25 features group2 with summary
+    """
+    model_summary = summary(model, X, y, features)
+    model_summary = model_summary.loc[model_summary['p-value'] <= 0.05]
+    g1 = model_summary.loc[model_summary.estimate < 0].sort_values(by="estimate", ascending=False).tail(25)
+    g2 = model_summary.loc[model_summary.estimate > 0].sort_values(by="estimate").tail(25)
+    g1['estimate'] = g1.estimate * -1
+    return g1.iloc[::-1], g2.iloc[::-1]
+
+
+def plot_estimates(model, X, y, features):
+    """
+    Parameters
+    ----------
+    model: fitted model e.g. LogisticRegression
+    X: predictors used to fit the model
+    y: response variable used to fit the model
+    features: feature names
+
+    Returns
+    -------
+    bar-plot of 25 features per group
+    """
+    g1, g2 = top_estimates(model, X, y, features)
+    g1 = g1.iloc[::-1]
+    g2 = g2.iloc[::-1]
+    fig, ax = plt.subplots(1, 2, figsize=(15, 8), dpi=80)
+    x = np.arange(25)
+    ax[0].barh(x, g1.estimate, color='cyan', edgecolor='black', zorder=3, linewidth=2, label='Group-1')
+    ax[1].barh(x, g2.estimate, color='violet', edgecolor='black', zorder=3, linewidth=2, label='Group-2')
+    for i in range(2):
+        ax[i].set_xticks(np.arange(max(max(g1.estimate), max(g2.estimate)) + 1))
+        ax[i].set_yticks(x)
+        ax[i].set_yticklabels(g1.index) if i == 0 else ax[i].set_yticklabels(g2.index)
+        ax[i].xaxis.set_ticks_position('none')
+        ax[i].yaxis.set_ticks_position('none')
+        for j in ['top', 'bottom', 'right', 'left']:
+            ax[i].spines[j].set_visible(False)
+        ax[i].grid(zorder=0, axis='x', which='both', alpha=0.6, linewidth=0.4)
+        ax[i].set_title(f'25 most important features for Group-{i + 1}')
+    plt.show()
+
+
 feat_names = tfidf.columns[2:]
 X_train, X_test, y_train, y_test = train_test_split(tfidf[feat_names], tfidf.GROUP, test_size=0.2, random_state=42)
 clf = LogisticRegression(random_state=42)
 clf.fit(X_train, y_train)
 y_pred = clf.predict(X_test)
-
 
 plot_conf_matrix(y_test, y_pred)
 plot_roc(y_test, y_pred)
@@ -247,3 +298,4 @@ print(classification_report(y_test, y_pred))
 model_summary = summary(clf, X_train, y_train, feat_names)
 print(model_summary)
 
+plot_estimates(clf, X_train, y_train, feat_names)
