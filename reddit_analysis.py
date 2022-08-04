@@ -21,6 +21,14 @@ df = pd.read_csv('/PATH/subreddit_data.csv')
 
 # clean text
 def clean(text):
+    """
+    Parameters
+    ----------
+    text: string to clean
+    Returns
+    -------
+    cleaned string
+    """
     # all lowercase
     text = text.lower()
     # remove stopwords
@@ -71,6 +79,16 @@ bipolar_lemmas = ','.join(list(bipolar['lemma'].values))
 
 # plot top-n words
 def plot_top_words(lemma_lst, quantity=10, color='blue'):
+    """
+    Parameters
+    ----------
+    lemma_lst: list of lemmas
+    quantity: number of top words to plot - default=10
+    color: color of bars - default=blue
+    Returns
+    -------
+    horizontal bar-plot with top-n words
+    """
     tokens = nltk.tokenize.WhitespaceTokenizer().tokenize(lemma_lst)
     freq = nltk.FreqDist(tokens)
     freq = pd.DataFrame({"Word": list(freq.keys()), "Frequency": list(freq.values())})
@@ -112,6 +130,15 @@ def plot_top_words(lemma_lst, quantity=10, color='blue'):
 
 # plot wordcloud
 def plot_wordcloud(lemma_lst):
+    """
+    Parameters
+    ----------
+    lemma_lst: list of lemmas
+
+    Returns
+    -------
+    plot wordcloud
+    """
     # create wordcloud object
     wordcloud = WordCloud(background_color="black", max_words=5000, contour_width=3, contour_color='steelblue')
     # generate wordcloud
@@ -129,7 +156,22 @@ plot_wordcloud(borderline_lemmas)
 # LDA
 
 # Compute c_v coherence for various number of topics
-def compute_coherence_values(dictionary, corpus, texts, limit, start=2, step=1):
+def compute_coherence_values(dictionary, corpus, texts, start=2, limit=10, step=1):
+    """
+    Parameters
+    ----------
+    dictionary: dictionary created from texts
+    corpus: bag of words created from texts and dictionary
+    texts: list of strings
+    start: number of topics to start with - default=2
+    limit: maximum number of topics - default=10
+    step: step between number of topics
+
+    Returns
+    -------
+    list of lda models
+    list of coherence values for each model
+    """
     coherence_values = []
     model_list = []
     for num_topics in range(start, limit, step):

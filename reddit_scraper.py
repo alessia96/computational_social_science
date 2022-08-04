@@ -26,6 +26,17 @@ def list_of_days(start_date, end_date):
 
 
 def scrape_reddit(subreddit, date_start, date_end, size=1000):
+    """
+    Parameters
+    ----------
+    subreddit: subreddit name
+    date_start: starting date
+    date_end: end date
+    size: maximum number of posts per day
+    Returns
+    -------
+    dataframe containing subreddit, author, date and post for each post in subreddit
+    """
     start = date2timestamp(date_start)
     end = date2timestamp(date_end)
     # use the pushshift api to extract out data
@@ -58,6 +69,18 @@ def scrape_reddit(subreddit, date_start, date_end, size=1000):
 
 
 def save_reddit_post(subreddit_list, days, size, output_dir):
+    """
+    Parameters
+    ----------
+    subreddit_list: list of subreddits
+    days: list of days (dates)
+    size: maximum number of posts per day
+    output_dir: directory where dataframe is saved
+
+    Returns
+    -------
+
+    """
     # for each subreddit in the given list save a csv file containing 4 columns: subreddit, author, date, post
     for sub in subreddit_list:
         subreddit_df = pd.DataFrame(columns=['subreddit', 'author', 'date', 'post'])
