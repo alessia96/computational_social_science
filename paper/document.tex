@@ -1,0 +1,391 @@
+\documentclass{article}
+
+\usepackage[flushleft]{threeparttable}
+\usepackage{rotating}
+\usepackage{tablefootnote}
+\usepackage{tocbibind}
+\usepackage{float}
+\usepackage{systeme}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{natbib}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{amsfonts}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage[procnames]{listings}
+\usepackage{caption}
+%\usepackage{biblatex}
+\usepackage{graphicx}
+\captionsetup{justification=raggedright, singlelinecheck=false}
+\usetikzlibrary{positioning,arrows, calc, arrows, fit, shadows}
+\pgfplotsset{compat=1.16}
+
+\setlength{\parindent}{4pt}
+\onehalfspacing
+
+\geometry{
+	a4paper,
+	left=3cm,
+	bottom=3cm,
+	right=3cm,
+	top=3cm
+}
+\begin{document}
+	
+\title{There exist similarities and differences between Bipolar and Borderline in the use of language? Analysis of the language usage in mental health related subreddits.}
+%\subtitle{Analysis of the language usage in mental health related subreddits.}
+\author{Alessia Meloni}
+\date{}
+\maketitle
+
+\section{Introduction}	
+
+In recent years the use of social media has grown enormously and they have become an integral part of everyone's life.
+Social media as Facebook, Twitter, Instagram, and Reddit are used to share thoughts, emotions, memories, and much more.
+Data collected from social media, as text and pictures, can have a huge impact in social science research, and they can give some important information about people.
+For example, from textual data it is possible to infer different attributes about people, such as emotions, motivations, personality type, intelligence, sexual orientation, and much more.
+
+
+
+
+This preliminary study has the aim of identifying differences and similarities in the language, topics, and main emotion through text and sentiment analysis on different subreddits concerning mental illnesses and psychological problems, and to find constraints and peculiarity on the use of language. In particular it focuses on differences between Bipolar and Borderline subreddits.
+
+
+%xxxx were used to isolate the psychological and emotional aspects of different type of disturb. Results shows ..... 
+
+
+
+
+
+
+
+\section{Previous Studies}
+\emph{Sentiment analysis}, a Natural Language Processing technique, consists on analyzing a text and extract its emotional dimension. This technique has grown in popularity in recent years and it is used widely in all social sciences. 
+
+
+
+There are two main approaches in Sentiment Analysis, one consists in classifying the polarity of a given text (positive, negative, neutral), the other, more challenging, consists in identifying the emotions (e.g. anger, happiness, etc.) (~\cite{kennedy2021text}). At the beginning, researcher focused on the first approach. Nowadays, with the growing number of methodologies and technologies, there is an increase in the studies that search to identify the real emotion behind a text.
+
+
+
+
+%some studies
+\cite{gaikwad2016multiclass} extracted emotions from twitter posts using a lexicon based approach and machine learning algorithms matching emotions with words.
+Shen and Rudzicz used text analysis in order to detect anxiety on Reddit users (\citeyear{shen2017detecting}).
+\cite{park2018examining} analyzed the top 15 topics in 3 sub-reddits (r/anxiety, r/PTSD/, r/depression), compared them and found thematic similarities.
+\cite{low2020natural} Identified features in the language of people in different mental health non-mental health sub-reddits before and during COVID-19 pandemic, finding an increase in anxiety and suicide topics.
+\cite{imran2020cross} analyzed twitter posts during the COVID-19 pandemic in order to find correlation between sentiments and emotions.
+\cite{mossburger2020exploring} compared the r/depression sub-reddit and an Australian depression forum in order to find differences in the language and content. They found that in r/depression users focus on sharing, while in Beyond Blue are more focused on supporting.
+\cite{chen2021sentiment} found differences in the polarity of different topics on r/depression sub-reddit, in particular a more negative sentiment when referring to COVID-19.
+\cite{pasca2022text} analyzed customer satisfaction finding differences in the emotional dimension of reviews.
+
+
+\section{Method}
+
+
+
+\subsection{Sample}
+
+As suggested from Landers, Cavanaugh, and Collmus (\citeyear{landers2016primer}), web scraping is a methodology with a big potential for social science research. It allows obtaining, in an automatic way from forums, social media, and other websites, a large amount of data which could be analyzed through different tools to make inferences. 
+
+
+In this preliminary research data were collected through web scraping methods on Reddit. In choosing this social media platform were considered different aspects. 
+
+First, on Reddit people are (almost) all anonymous: each redditor has a nickname, from which is usually not possible to understand who it is, its age, its gender, and many other sensitive information. It is known that people tend to change their behavior when observed or, in the social media case, when other people can recognize them. Since the redditor is anonymous, it tends to speak and to share more than it does in other social media or in the real life.
+
+Secondly, the post on Reddit are usually longer than on Twitter or Facebook. This can led to better defined thoughts, better choose of words, etc. Also, longer texts are simpler and better understandable than short texts.
+
+Another reason behind the choose of Reddit is the existence of different and well documented APIs and programs for the scraping.
+
+In order to collect data, it was developed a python script with the support of \cite{pushift} API, which allows to obtain sub-reddits information, such as posts, author, comments, etc.
+
+Data were collected from sub-reddits related to mental illnesses and psychological disturbs, and from "neutral" sub-reddits as control group. The sub-reddits chosen for the first group are: \emph{ADHD, autism, Bipolar, BipolarReddit, Borderline, BorderlinePDisorder, CPTSD, OCD, ptsd, schizoaffective, schizophrenia, anxiety, depression, EDAnonymous, socianxiety, suicidewatch,lonely, addiction, alcoholism}. For the second group were chosen: \emph{AMA, conspiracy, datascience, divorce, fitness, guns, jokes, legaladvice, LifeProTips, linux, NoStupidQuestions, parenting, relationships, teaching, unpopularopinion}.
+
+
+For each sub-reddit were collected the nickname of the post author, the post title and the post text. The titles and texts were merged together, since very often the title is essentially the first part of the text.
+
+
+In order to obtain similar data, were considered the post published from 2020/01/01 to 2022/03/15.
+
+At the end of the collection, there were 34 different sub-reddits with 454975 from the first group of subreddits and 367645 from the second group, for a total of 822620 posts.
+
+The tables below show the distribution of posts and authors for each sub-reddit of the two groups.
+
+\begin{minipage}{0.49\linewidth}
+\begin{table}[H]
+	\label{tab:stat1}
+	\centering  
+	\begin{tabular}{lll}
+		\hline\noalign{\smallskip}
+		Subreddit 				& Authors	& Posts  \\
+		\noalign{\smallskip}\hline\noalign{\smallskip}
+		ADHD					&	23694	&	30070	\\
+		autism					&	18099	&	30000	\\
+		Bipolar					&	15713	&	30041	\\
+		BipolarReddit			&	9380	&	22354	\\
+		Borderline				&	426		&	524	\\
+		BorderlinePDisorder		&	9448	&	18928	\\
+		CPTSD					&	14303	&	30080	\\
+		OCD						&	17088	&	30063	\\
+		ptsd					&	12318	&	19773	\\
+		schizoaffective			&	2443	&	6360	\\
+		schizophrenia			&	10309	&	26161	\\
+		anxiety					&	23589	&	30048	\\
+		depression				&	25309	&	30030	\\
+		EDAnonymous				&	12243	&	30003	\\
+		socialanxiety			&	18983	&	30094	\\
+		suicidewatch			&	24095	&	30047	\\
+		lonely					&	21429	&	30034	\\
+		addiction				&	12859	&	17740	\\
+		alcoholism				&	9276	&	12625	\\
+		\noalign{\smallskip}\hline
+	\end{tabular}
+	\caption {Posts distribution per sub-reddit - group 1}
+\end{table}
+\end{minipage}
+\hfill
+\begin{minipage}{0.5\linewidth}
+	\bigskip\bigskip\bigskip\bigskip
+\begin{table}[H]
+	\label{tab:stat2}
+	\centering  
+	\begin{tabular}{lll}
+		\hline\noalign{\smallskip}
+		Subreddit 				& Authors & Posts  \\
+		\noalign{\smallskip}\hline\noalign{\smallskip}
+		AMA						&	21528	&	27837	\\
+		conspiracy				&	14694	&	26466	\\
+		datascience				&	13550	&	20262	\\
+		divorce					&	18580	&	30046	\\
+		fitness					&	11532	&	13714	\\
+		guns					&	16952	&	22767	\\
+		jokes					&	20166	&	30028	\\
+		legaladvice				&	28760	&	30011	\\
+		LifeProTips				&	24933	&	30042	\\
+		linux					&	8901	&	10705	\\
+		NoStupidQuestions		&	24466	&	30036	\\
+		parenting				&	22443	&	30067	\\
+		relationships			&	26365	&	30025	\\
+		teaching				&	4175	&	5599	\\
+		unpopularopinion		&	25817	&	30040	\\
+		\noalign{\smallskip}\hline
+	\end{tabular}
+	\caption {Posts distribution per sub-reddit - group 2}
+\end{table}
+\end{minipage}
+
+\bigskip
+
+\subsection{Analysis}
+
+The initial datasets were cleaned removing stop-words, doing tokenization and lemmatization for each post%, and grouping together all the lemmas of each sub-reddit. 
+
+From this starting point some analysis were done in order to find differences between 4 groups of subreddits: mental health, non-mental health, borderline, and bipolar. 
+
+
+First were generated the word-clouds in order to look at the most frequent terms. Then, for the same groups of subreddits, topics were extracted through Latent Dirichlet Allocation (LDA) (\cite{blei2003latent}) considering the lemmatized posts.
+
+\begin{figure}[H]
+	\includegraphics[width=7cm, height=4cm]{/home/a/Reddit/mental_wordcloud.PNG}
+	\hfill
+	\includegraphics[width=7cm, height=4cm]{/home/a/Reddit/non_mental_wordcloud.PNG}
+	\caption {Word-clouds of mental health and non-mental health subreddits}
+\end{figure}
+\begin{figure}[H]
+	\includegraphics[width=7cm, height=4cm]{/home/a/Reddit/border_wordcloud.PNG}
+	\hfill
+	\includegraphics[width=7cm, height=4cm]{/home/a/Reddit/bipolar_wordcloud.PNG}
+	\caption {Word-clouds of borderline and bipolar subreddits}
+\end{figure}
+
+
+LDA is an algorithm that generates a probabilistic model that is used to identify group of topics and to match words or sentences to a given topic. The main idea behind LDA is that sentences are characterized by one or more topic, and that each topic uses a similar group of words which is different from another topic.
+
+To find the optimal models, were used different \emph{k} (number of topics) and computed the coherence scores. Higher the score the better the model is.
+
+Tables 3 and 4 show the topics extracted for each subreddit group
+
+\begin{table}[H]
+	\begin{table}[H]
+	\scriptsize
+	\label{tab:topics}
+	\centering  
+	
+	\begin{table}[H]
+		\scriptsize
+		\label{tab:topics1}
+		\centering  
+		\begin{tabular}{c|c}
+			\hline\noalign{\smallskip}
+			Mental Health & non-Mental Health\\
+			\noalign{\smallskip}\hline\noalign{\smallskip}	
+			\begin{tabular}{l|l}
+				Topic	&  Words  \\
+				\noalign{\smallskip}\hline\noalign{\smallskip}
+				Cognitive		&	feel, think, know, want					 \\
+				Talk			&	talk, call, conversation, speak 		 \\
+				Help-request	&	help, people, experience, anyone 	     \\
+				Time			&	time, day, year, live					 \\
+				Negativity		&	fear, control, negative, inside			 \\
+				School			&	school, college, teacher, grade			 \\
+				Risk-behavior	&	alcohol, drug, smoke, food				 \\
+				Relationship	&	friend, love, relationship, partner		 \\
+				Mental-health	&	mental, disorder, symptoms, traits		 \\
+				Swear-words		&	fuck, shit, crap, goddamn				 \\
+				Sexual-life		&	date, sex, romantic, porn				 \\
+				Internet		&	discord, youtube, channel, link			 \\
+				Trust			&	uncomfortable, trust, lie, fake			 \\
+				Information		&	information, survey, hello, zone		 \\
+				\noalign{\smallskip}\hline
+			\end{tabular} &
+			
+			\begin{tabular}{ll}
+				Topic	&  Words  \\
+				\noalign{\smallskip}\hline\noalign{\smallskip}
+				Cognitive	&	feel, think, know, want					 \\
+				Money		&	credit, pay, property, value			 \\
+				Home		&	clean, kitchen, room, garage			 \\
+				\noalign{\smallskip}\hline
+			\end{tabular} 
+		\end{tabular}
+	\caption {Extracted topics Mental Health and non-Mental Health subreddits}
+	\end{table}
+	
+	\begin{tabular}{c|c}
+
+		\hline\noalign{\smallskip}
+		Borderline & Bipolar\\
+		\noalign{\smallskip}\hline\noalign{\smallskip}
+		\begin{tabular}{l|l}
+			Topic	&  Words  \\
+			\noalign{\smallskip}\hline\noalign{\smallskip}
+			Cognitive	&	feel, think, know, want					 \\
+			Time		&	time, day, year, live					 \\
+			Disorder	&	borderline, diagnose, symptoms, disorder \\
+			Therapy		&	therapy, health, support, help			 \\
+			
+			\noalign{\smallskip}\hline\noalign{\smallskip}
+		\end{tabular} &
+		
+		\begin{tabular}{l|l}
+			Topic	&  Words  \\
+			\noalign{\smallskip}\hline\noalign{\smallskip}
+			Cognitive	&	feel, think, know, want					 \\
+			Time		&	time, day, year, live					 \\
+			Disorder	&	bipolar, diagnose, mental, disorder		 \\
+			Symptoms	&	mania, depression, mood, episode		 \\
+			Therapy		&	antipsychotic, lithium, effect, prescribe\\
+			Body		&	eat, body, pain, exercise				 \\
+
+			\noalign{\smallskip}\hline\noalign{\smallskip}
+		\end{tabular} 
+	\end{tabular}
+\caption {Extracted topics Borderline and Bipolar subreddits}
+\end{table}
+
+\end{table}
+
+%As is possible to notice, all sub-reddits share the cognitive aspect. 
+
+Focusing on Borderline and Bipolar sub-reddits, the topics extracted are almost the same, but they are composed by other words. Particularly, Bipolar sub-reddits seem to divide the \emph{Disorder} in three different topics (\emph{Disorder, Symptoms, Body}) suggesting a more clear vision of the disorder. Also, the \emph{Therapy} topic is different: Borderlines tend to focus on the psychological dimension and approach, while Bipolars on the psychiatric one.
+
+\subsection{Classification and Results}
+
+In the effort to find similarities and differences in the language usage, a matrix of TF-IDF (Term Frequency-Inverse Document Frequency) (\cite{salton1988term}) features was created. Terms with a document frequency strictly lower than the given threshold of 5\% were ignored.  
+
+TF-IDF is an algorithm composed of two methods: \emph{term frequency} and \emph{inverse document frequency}. TF is used to compute the proportion of a term (\emph{t}) in a document (\emph{d}), and it is given by
+\[tf(t, d) = \dfrac{f_{t, d}}{\sum\limits_{t' \in d} f_{t', d}}\]
+
+IDF assigns weights to words based on their frequency. Frequent words have a lower weight than infrequent words. It is the logarithm of the fraction of all the documents (\emph{N}), divided by the number of documents (\emph{D}) that contain the term (\emph{t})
+\[idf(t, D) = log \dfrac{N}{|\{d \in D: t\in d\}|}\]
+
+The TF-IDF is given by the product of TF and IDF, namely
+\[tf-idf(t, d, D) = tf(t,d) \cdot idf(t, D) = \dfrac{f_{t, d}}{\sum\limits_{t' \in d} f_{t', d}} \cdot log \dfrac{N}{|\{d \in D: t\in d\}|}\]
+
+
+%From there it is possible to notice some differences and similarities between the groups of subreddits. %In particular, the tables below show the the proportion of top-25 words for non-mental health and mental health sub-reddits, and the proportion of top-25 words for Bipolar and Borderline sub-reddits.
+
+Different statistics methods were applied on the matrix generated with TF-IDF in order to make inferences about the language usage in the different groups of subreddits. Particularly, the following methods were used: logistic regression, ridge classifier, perceptron, SGD classifier, passive aggressive classifier, Bernoulli Naive Bayes, Complement Naive Bayes, Multinomial Naive Bayes. The table below shows the train and test scores for mental health vs non-mental health subreddits (group 1), and borderline vs bipolar subreddits (group 2).
+
+
+
+\begin{table}[H]
+	\scriptsize
+	\centering
+	\begin{tabular}{l|cccc}
+		method 						& group 1 train & group 1 test  &  group 2 train &   group 2 test \\
+		\noalign{\smallskip}\hline\noalign{\smallskip}
+		Logistic Regression    		&	0.7995  	&	0.7990  	&	0.7792  	 &	0.7734\\
+		Ridge Classifier   			&	0.7968  	&	0.7964 	 	&	0.7774  	 &	0.7719\\
+		Perceptron   				&	0.7514  	&	0.7518  	&	0.6277  	 &	0.6232\\
+		SDG Classifier    			&	0.7989  	&	0.7984  	&	0.7710   	 &	0.7676\\
+		PassiveAggressive Classifier &	0.7480   	&	0.7498  	&	0.7263  	 &	0.7191\\
+		Bernoulli Naive Bayes    	&	0.6681   	&	0.6685  	&	0.6887  	 &	0.6857\\
+		Complement Naive Bayes    	&	0.7712  	&	0.7706  	&	0.6969  	 &	0.6911\\
+		Multinomial Naive Bayes    	&	0.7580   	&	0.7572  	&	0.7431 		 &	0.7428
+	\end{tabular}
+	\caption {Train and test scores mental health vs non-mental health, borderline vs bipolar subreddits}
+\end{table}
+
+
+As it is possible to notice from the table above, the best model for both groups is the logistic regression. 
+
+The features ... for Borderline and Bipolar are 
+
+
+
+
+
+%
+%
+%In order to find the emotional dimension of the posts, AffectVec was used. AffectVec is a word-emotion database developed by \cite{raji2020sparks} that covers over 70,000 English words, it considers over 200 emotions, and there are intensity scores between words and emotions. From the initial database were considered only the basic emotions according to Plutchik's wheel of emotions (\cite{plutchik1997circumplex}), \emph{Joy, Trust, Fear, Surprise, Sadness Disgust, Anger, Anticipation}. 
+
+%The emotions were used to isolate words of interest within the posts, removing words not contained in the AffectVec corpus. Each word were matched with each emotion generating a matrix in which for each sub-reddit there are scores for all the emotions.
+
+%More precisely, word frequencies were divided for the number of posts of the correspondent sub-reddit. That because different sub-reddits have different amount of posts, and, in this way, the original frequencies were normalized. Then, frequencies were multiplied for the single emotion. 
+
+
+
+
+
+	
+
+	
+\section{Conclusion}
+	
+	
+% one of the main problem is given by the fact that some of the users in the mental health subreddit are auto-diagnosed. This means that it is not possible to be sure that a given post was written by someone with a distorder and/or disturb. In particular, the xxxxxxx is with the users of Borderline and Bipolar subreddits, as it is known that very often people with those disorders tends not only to misdiagnose themselves, but also in the clinic setting could happen that they are misclassified.
+
+
+
+
+
+
+	
+\footnotesize{
+	\bibliographystyle{apalike}
+	\bibliography{ref}
+}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+\end{document}
