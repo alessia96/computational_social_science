@@ -62,15 +62,14 @@ def classification(predictors, response_var, test_size=0.2):
     train_score = []
     test_score = []
     for clf, names in ((LogisticRegression(random_state=42), "Logistic Regression"),
-                       (RidgeClassifier(tol=1e-2, solver="sag"), "Ridge Classifier"),
+                       (RidgeClassifier(tol=1e-2, solver="sag", random_state=42), "Ridge Classifier"),
                        (Perceptron(max_iter=50), "Perceptron"),
-                       (SGDClassifier(max_iter=1000, tol=1e-3), "SDG Classifier"),
+                       (SGDClassifier(max_iter=1000, tol=1e-3, random_state=42), "SDG Classifier"),
                        (PassiveAggressiveClassifier(max_iter=50), "PassiveAgressive Classifier"),
                        (BernoulliNB(), "Bernoulli Naive Bayes"),
                        (ComplementNB(), "Complement Naive Bayes"),
                        (MultinomialNB(), "Multinomial Naive Bayes"),
-                       (KNeighborsClassifier(n_neighbors=11), "KNN"),
-                       (RandomForestClassifier(random_state=42), "Random Forest")
+                       (KNeighborsClassifier(n_neighbors=11), "KNN")
                        ):
         clf.fit(X_train, y_train)
         train_score.append((names, clf.score(X_train, y_train)))
@@ -138,7 +137,7 @@ btfidf = tfidf.loc[tfidf.SUBREDDIT.str.contains('orderline')]
 btfidf = btfidf.append(tfidf.loc[tfidf.SUBREDDIT.str.contains('ipolar')])
 
 btarget = []
-for subs in btfidf.subreddit:
+for subs in btfidf.SUBREDDIT:
     if 'orderline' in subs:
         btarget.append(0)
     else:
@@ -269,12 +268,13 @@ def plot_estimates(model, X, y, features):
     g1 = g1.iloc[::-1]
     g2 = g2.iloc[::-1]
     fig, ax = plt.subplots(1, 2, figsize=(15, 8), dpi=80)
-    x = np.arange(25)
-    ax[0].barh(x, g1.estimate, color='cyan', edgecolor='black', zorder=3, linewidth=2, label='Group-1')
-    ax[1].barh(x, g2.estimate, color='violet', edgecolor='black', zorder=3, linewidth=2, label='Group-2')
+    x1 = np.arange(len(g1))
+    x2 = np.arange(len(g2))
+    ax[0].barh(x1, g1.estimate, color='cyan', edgecolor='black', zorder=3, linewidth=2, label='Group-1')
+    ax[1].barh(x2, g2.estimate, color='violet', edgecolor='black', zorder=3, linewidth=2, label='Group-2')
     for i in range(2):
         ax[i].set_xticks(np.arange(max(max(g1.estimate), max(g2.estimate)) + 1))
-        ax[i].set_yticks(x)
+        ax[i].set_yticks(x1) if i == 0 else ax[i].set_yticks(x2)
         ax[i].set_yticklabels(g1.index) if i == 0 else ax[i].set_yticklabels(g2.index)
         ax[i].xaxis.set_ticks_position('none')
         ax[i].yaxis.set_ticks_position('none')
@@ -299,3 +299,6 @@ model_summary = summary(clf, X_train, y_train, feat_names)
 print(model_summary)
 
 plot_estimates(clf, X_train, y_train, feat_names)
+
+g1, g2 = top_estimates(clf, X_train, y_train, feat_names)
+
