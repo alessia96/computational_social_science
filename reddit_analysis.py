@@ -129,11 +129,11 @@ def plot_top_words(lemma_lst, quantity=10, color='blue'):
 
 
 # plot wordcloud
-def plot_wordcloud(lemma_lst):
+def plot_wordcloud(lemmas):
     """
     Parameters
     ----------
-    lemma_lst: list of lemmas
+    lemmas: unique string of lemmas
 
     Returns
     -------
@@ -142,7 +142,7 @@ def plot_wordcloud(lemma_lst):
     # create wordcloud object
     wordcloud = WordCloud(background_color="black", max_words=5000, contour_width=3, contour_color='steelblue')
     # generate wordcloud
-    wordcloud.generate(lemma_lst)
+    wordcloud.generate(lemmas)
     # Visualize wordcloud
     wordcloud.to_image().show()
 
