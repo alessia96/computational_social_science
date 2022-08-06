@@ -9,7 +9,6 @@ from sklearn.linear_model import RidgeClassifier, Perceptron, PassiveAggressiveC
     LogisticRegression
 from sklearn.naive_bayes import BernoulliNB, ComplementNB, MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix, roc_curve, auc
 from scipy import stats
 
