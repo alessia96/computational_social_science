@@ -15,15 +15,29 @@ from scipy import stats
 
 df = pd.read_csv('/PATH/subreddit_cleaned.csv')
 
+
 # TFIDF
+def tfidf_matrix(lemmas_lst):
+    """
+    Parameters
+    ----------
+    lemmas_lst: list or series of lemmas
 
-# init tfidf vectorizer ignoring terms with a frequency lower than 5%
-cv = TfidfVectorizer(min_df=0.05, max_df=0.95, stop_words='english')
-tfidf = cv.fit_transform(df.lemma)
+    Returns
+    -------
+    pandas dataframe
+    """
+    # init tfidf vectorizer ignoring terms with a frequency lower than 5%
+    cv = TfidfVectorizer(min_df=0.05, max_df=0.95, stop_words='english')
+    tfidf = cv.fit_transform(lemmas_lst)
 
-# create dataframe from tfidf
-tfidf = pd.DataFrame(tfidf.todense())
-tfidf.columns = cv.get_feature_names()
+    # create dataframe from tfidf
+    tfidf = pd.DataFrame(tfidf.todense())
+    tfidf.columns = cv.get_feature_names()
+    return tfidf
+
+
+tfidf = tfidf_matrix(df.lemma)
 tfidf.insert(loc=0, column="SUBREDDIT", value=df.subreddit)
 
 # MODELS AND PREDICTIONS
@@ -89,25 +103,19 @@ def plot_models_results(train_scores, test_scores, group=0):
     -------
     bar-plot of performances for each model and group
     """
-    colors = sns.color_palette(palette="pastel")
     groups = {0: '"mental health" and "non-mental health"',
               1: '"Borderline" and "Bipolar"'}
     fig, ax = plt.subplots(figsize=(15, 8), dpi=80)
     x = np.arange(len(train_scores))
 
     # barplots
-    l_bar = ax.bar(x - 0.35 / 2, [i[1] for i in train_scores], width=0.35, label='Train Score',
-                   color=colors[2],
-                   edgecolor='black',
-                   zorder=3,
-                   linewidth=2)
-    r_bar = ax.bar(x + 0.35 / 2, [i[1] for i in test_scores], width=0.35, label='Test Score',
-                   color=colors[0],
-                   edgecolor='black',
-                   zorder=3,
-                   linewidth=2)
+    ax.bar(x - 0.35 / 2, [i[1] for i in train_scores], width=0.35, label='Train Score',
+           color='lime', edgecolor='black', zorder=3, linewidth=2)
+    ax.bar(x + 0.35 / 2, [i[1] for i in test_scores], width=0.35, label='Test Score',
+           color='cyan', edgecolor='black', zorder=3, linewidth=2)
 
     ax.grid(zorder=0, axis='y', which='major', alpha=0.6, linewidth=0.4)  # horizontal lines
+
     # add xtick labels
     labels = ['\n'.join(i[0].split()) for i in train_scores]
     ax.set_xticks(range(len(train_scores)))
@@ -220,8 +228,6 @@ def plot_roc(y_test, y_pred):
     roc_auc = auc(fpr, tpr)
     plt.plot(fpr, tpr, 'b', label='AUC = %0.2f' % roc_auc)
     plt.plot([0, 1], [0, 1], 'r--')
-    plt.xlim([0, 1])
-    plt.ylim([0, 1])
     plt.ylabel('True Positive Rate')
     plt.xlabel('False Positive Rate')
     plt.title('ROC Curve')
@@ -271,7 +277,7 @@ def plot_estimates(model, X, y, features):
     x1 = np.arange(len(g1))
     x2 = np.arange(len(g2))
     ax[0].barh(x1, g1.estimate, color='cyan', edgecolor='black', zorder=3, linewidth=2, label='Group-1')
-    ax[1].barh(x2, g2.estimate, color='violet', edgecolor='black', zorder=3, linewidth=2, label='Group-2')
+    ax[1].barh(x2, g2.estimate, color='lime', edgecolor='black', zorder=3, linewidth=2, label='Group-2')
     for i in range(2):
         ax[i].set_xticks(np.arange(max(max(g1.estimate), max(g2.estimate)) + 1))
         ax[i].set_yticks(x1) if i == 0 else ax[i].set_yticks(x2)
@@ -301,4 +307,3 @@ print(model_summary)
 plot_estimates(clf, X_train, y_train, feat_names)
 
 g1, g2 = top_estimates(clf, X_train, y_train, feat_names)
-
