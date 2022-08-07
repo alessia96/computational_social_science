@@ -101,7 +101,11 @@ class Scraper:
             subreddit_df.to_csv(os.path.join(self.output_path, '{}.csv'.format(subr)), index=False)
 
 
-output_dir = '/Reddit/'
+# create Reddit folder and Subreddits folder
+os.mkdir('Reddit')
+os.mkdir(os.path.join("Reddit", "Subreddit"))
+
+output_dir = os.path.join("Reddit", "Subreddit")
 
 subreddit = ['ADHD', 'autism', 'Bipolar', 'BipolarReddit', 'Borderline', 'BorderlinePDisorder', 'CPTSD', 'OCD', 'ptsd',
              'schizoaffective', 'schizophrenia', 'anxiety', 'depression', 'EDAnonymous', 'socialanxiety',
@@ -122,4 +126,4 @@ for sub in subreddit:
     df = df.append(sub_df)
 
 # save full dataset
-df.to_csv('/Reddit/subreddit_data.csv')
+df.to_csv(os.path.join("Reddit", "subreddit_data.csv"), index=False)

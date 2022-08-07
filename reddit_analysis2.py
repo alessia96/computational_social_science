@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,8 +13,6 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, confusion_matrix, roc_curve, auc
 from scipy import stats
 
-df = pd.read_csv('/PATH/subreddit_cleaned.csv')
-
 
 # TFIDF
 def tfidf_matrix(lemmas_lst):
@@ -26,35 +25,35 @@ def tfidf_matrix(lemmas_lst):
     -------
     pandas dataframe
     """
-    # init tfidf vectorizer ignoring terms with a frequency lower than 5%
+    # init tfidf vectorizer ignoring terms with a frequency lower than 5% and higher than 95%
     cv = TfidfVectorizer(min_df=0.05, max_df=0.95, stop_words='english')
-    tfidf = cv.fit_transform(lemmas_lst)
+    tfidf_matx = cv.fit_transform(lemmas_lst)
 
     # create dataframe from tfidf
-    tfidf = pd.DataFrame(tfidf.todense())
-    tfidf.columns = cv.get_feature_names()
-    return tfidf
+    tfidf_matx = pd.DataFrame(tfidf_matx.todense())
+    tfidf_matx.columns = cv.get_feature_names()
+    return tfidf_matx
 
 
+df = pd.read_csv(os.path.join("Reddit", "subreddit_cleaned.csv"))
+
+# create TF-IDF matrix from lemmatized posts
 tfidf = tfidf_matrix(df.lemma)
 tfidf.insert(loc=0, column="SUBREDDIT", value=df.subreddit)
 
+
 # MODELS AND PREDICTIONS
+
 subreddit = ['ADHD', 'autism', 'Bipolar', 'BipolarReddit', 'Borderline', 'BorderlinePDisorder',
              'CPTSD', 'OCD', 'ptsd', 'schizoaffective', 'schizophrenia', 'anxiety', 'depression',
              'EDAnonymous', 'socialanxiety', 'suicidewatch', 'lonely', 'addiction', 'alcoholism']
 
 # assign subreddits to target
 # 0=mental health; 1=non-mental health
-target = []
-for subs in tfidf.SUBREDDIT:
-    if subs in subreddit:
-        target.append(0)
-    else:
-        target.append(1)
+target = [0 if subr in subreddit else 1 for subr in tfidf.SUBREDDIT]
 
 # noinspection PyTypeChecker
-tfidf.insert(loc=0, column="GROUP", value=target)
+tfidf.insert(loc=0, column="Y", value=target)
 
 
 # classification
@@ -71,9 +70,9 @@ def classification(predictors, response_var, test_size=0.2):
     list of train scores: performance (accuracy) of models on train set
     list of test scores: performance (accuracy) of models on test set
     """
-    X_train, X_test, y_train, y_test = train_test_split(predictors, response_var, test_size=test_size, random_state=42)
-    train_score = []
-    test_score = []
+    X_train, X_test, Y_train, Y_test = train_test_split(predictors, response_var, test_size=test_size, random_state=42)
+    train_scores = []
+    test_scores = []
     for clf, names in ((LogisticRegression(random_state=42), "Logistic Regression"),
                        (RidgeClassifier(tol=1e-2, solver="sag", random_state=42), "Ridge Classifier"),
                        (Perceptron(max_iter=50), "Perceptron"),
@@ -84,10 +83,10 @@ def classification(predictors, response_var, test_size=0.2):
                        (MultinomialNB(), "Multinomial Naive Bayes"),
                        (KNeighborsClassifier(n_neighbors=11), "KNN")
                        ):
-        clf.fit(X_train, y_train)
-        train_score.append((names, clf.score(X_train, y_train)))
-        test_score.append((names, clf.score(X_test, y_test)))
-    return train_score, test_score
+        clf.fit(X_train, Y_train)
+        train_scores.append((names, clf.score(X_train, Y_train)))
+        test_scores.append((names, clf.score(X_test, Y_test)))
+    return train_scores, test_scores
 
 
 # plot results of classification()
@@ -143,12 +142,7 @@ plot_models_results(train_score, test_score, group=0)
 btfidf = tfidf.loc[tfidf.SUBREDDIT.str.contains('orderline')]
 btfidf = btfidf.append(tfidf.loc[tfidf.SUBREDDIT.str.contains('ipolar')])
 
-btarget = []
-for subs in btfidf.SUBREDDIT:
-    if 'orderline' in subs:
-        btarget.append(0)
-    else:
-        btarget.append(1)
+btarget = [0 if "orderline" in subr else 0 for subr in btfidf.SUBREDDIT]
 
 # noinspection PyTypeChecker
 btfidf["GROUP"] = btarget
@@ -195,35 +189,35 @@ def summary(model, X, y, features):
     return res
 
 
-def plot_conf_matrix(y_test, y_pred):
+def plot_conf_matrix(Y_test, Y_pred):
     """
     Parameters
     ----------
-    y_test: true Y
-    y_pred: predicted Y (y^)
+    Y_test: true Y
+    Y_pred: predicted Y (y^)
 
     Returns
     -------
     confusion matrix plot
     """
-    cm = confusion_matrix(y_test, y_pred)
+    cm = confusion_matrix(Y_test, Y_pred)
     df_cm = pd.DataFrame(cm, range(cm.shape[0]), range(cm.shape[1]))
     sns.heatmap(df_cm, annot=True, fmt='.0f')
     plt.show()
 
 
-def plot_roc(y_test, y_pred):
+def plot_roc(Y_test, Y_pred):
     """
     Parameters
     ----------
-    y_test: true Y
-    y_pred: predicted Y (y^)
+    Y_test: true Y
+    Y_pred: predicted Y (y^)
 
     Returns
     -------
     roc-curve plot
     """
-    fpr, tpr, thresholds = roc_curve(y_test, y_pred, pos_label=1)
+    fpr, tpr, thresholds = roc_curve(Y_test, Y_pred, pos_label=1)
     roc_auc = auc(fpr, tpr)
     plt.plot(fpr, tpr, 'b', label='AUC = %0.2f' % roc_auc)
     plt.plot([0, 1], [0, 1], 'r--')
@@ -248,10 +242,10 @@ def top_estimates(model, X, y, features):
     g1: top 25 features group1 with summary
     g2: top 25 features group2 with summary
     """
-    model_summary = summary(model, X, y, features)
-    model_summary = model_summary.loc[model_summary['p-value'] <= 0.05]
-    g1 = model_summary.loc[model_summary.estimate < 0].sort_values(by="estimate", ascending=False).tail(25)
-    g2 = model_summary.loc[model_summary.estimate > 0].sort_values(by="estimate").tail(25)
+    model_summ = summary(model, X, y, features)
+    model_summ = model_summ.loc[model_summ['p-value'] <= 0.05]
+    g1 = model_summ.loc[model_summ.estimate < 0].sort_values(by="estimate", ascending=False).tail(25)
+    g2 = model_summ.loc[model_summ.estimate > 0].sort_values(by="estimate").tail(25)
     g1['estimate'] = g1.estimate * -1
     return g1.iloc[::-1], g2.iloc[::-1]
 
@@ -291,18 +285,18 @@ def plot_estimates(model, X, y, features):
 
 
 feat_names = tfidf.columns[2:]
-X_train, X_test, y_train, y_test = train_test_split(tfidf[feat_names], tfidf.GROUP, test_size=0.2, random_state=42)
-clf = LogisticRegression(random_state=42)
-clf.fit(X_train, y_train)
-y_pred = clf.predict(X_test)
+x_train, x_test, y_train, y_test = train_test_split(tfidf[feat_names], tfidf.GROUP, test_size=0.2, random_state=42)
+LR = LogisticRegression(random_state=42)
+LR.fit(x_train, y_train)
+y_pred = LR.predict(x_test)
 
 plot_conf_matrix(y_test, y_pred)
 plot_roc(y_test, y_pred)
 print(classification_report(y_test, y_pred))
 
-model_summary = summary(clf, X_train, y_train, feat_names)
+model_summary = summary(LR, x_train, y_train, feat_names)
 print(model_summary)
 
-plot_estimates(clf, X_train, y_train, feat_names)
+plot_estimates(LR, x_train, y_train, feat_names)
 
-g1, g2 = top_estimates(clf, X_train, y_train, feat_names)
+estimates1, estimates2 = top_estimates(LR, x_train, y_train, feat_names)

@@ -1,3 +1,4 @@
+import os
 import re
 import pandas as pd
 import numpy as np
@@ -14,9 +15,6 @@ import pyLDAvis
 import pyLDAvis.gensim_models as gensimvis
 
 # CLEAN, TOKENIZE AND LEMMATIZE
-
-# load the dataset
-df = pd.read_csv('/PATH/subreddit_data.csv')
 
 
 # clean text
@@ -44,8 +42,10 @@ def clean(text):
     return text
 
 
-# nlp = spacy.load('en_core_web_sm')
 lemmatizer = WordNetLemmatizer()
+
+# load the dataset
+df = pd.read_csv(os.path.join("Reddit", "subreddit_data.csv"))
 
 df['clean'] = df.apply(lambda row: clean(row['post']), axis=1)
 df['token'] = df.apply(lambda row: nltk.word_tokenize(row['clean']), axis=1)
@@ -53,28 +53,10 @@ df['lemma'] = df.token.apply(lambda lst: [lemmatizer.lemmatize(word, pos='v') fo
 df.lemma = [' '.join(i) for i in df.lemma]
 
 # save cleaned df
-df.to_csv('/PATH/subreddit_cleaned.csv')
+df.to_csv(os.path.join("Reddit", "subreddit_cleaned.csv"))
+
 
 # ANALYSIS
-
-subreddit = ['ADHD', 'autism', 'Bipolar', 'BipolarReddit', 'Borderline', 'BorderlinePDisorder',
-             'CPTSD', 'OCD', 'ptsd', 'schizoaffective', 'schizophrenia', 'anxiety', 'depression',
-             'EDAnonymous', 'socialanxiety', 'suicidewatch', 'lonely', 'addiction', 'alcoholism']
-
-# separate mental health and non-mental health subreddits
-mental = df.loc[df.subreddit.isin(subreddit)]
-non_mental = df.loc[~df.subreddit.isin(subreddit)]
-
-# separate Borderline and Bipolar subreddits
-border = df.loc[df.subreddit.str.contains('orderline')]
-bipolar = df.loc[df.subreddit.str.contains('ipolar')]
-
-# Join the lemmas.
-mental_lemmas = ','.join(list(mental['lemma'].values))
-non_mental_lemmas = ','.join(list(non_mental['lemma'].values))
-borderline_lemmas = ','.join(list(border['lemma'].values))
-bipolar_lemmas = ','.join(list(bipolar['lemma'].values))
-
 
 # plot top-n words
 def plot_top_words(lemma_lst, quantity=10, color='blue'):
@@ -146,8 +128,26 @@ def plot_wordcloud(lemmas):
     wordcloud.to_image().show()
 
 
-# example plot top 25 words and wordcloud for borderline subreddits
+subreddit = ['ADHD', 'autism', 'Bipolar', 'BipolarReddit', 'Borderline', 'BorderlinePDisorder',
+             'CPTSD', 'OCD', 'ptsd', 'schizoaffective', 'schizophrenia', 'anxiety', 'depression',
+             'EDAnonymous', 'socialanxiety', 'suicidewatch', 'lonely', 'addiction', 'alcoholism']
 
+# separate mental health and non-mental health subreddits
+mental = df.loc[df.subreddit.isin(subreddit)]
+non_mental = df.loc[~df.subreddit.isin(subreddit)]
+
+# separate Borderline and Bipolar subreddits
+border = df.loc[df.subreddit.str.contains('orderline')]
+bipolar = df.loc[df.subreddit.str.contains('ipolar')]
+
+# Join the lemmas.
+mental_lemmas = ','.join(list(mental['lemma'].values))
+non_mental_lemmas = ','.join(list(non_mental['lemma'].values))
+borderline_lemmas = ','.join(list(border['lemma'].values))
+bipolar_lemmas = ','.join(list(bipolar['lemma'].values))
+
+
+# example plot top 25 words and wordcloud for borderline subreddits
 plot_top_words(borderline_lemmas.split(), 25, 'violet')
 plot_wordcloud(borderline_lemmas)
 
@@ -190,7 +190,7 @@ def compute_coherence_values(dictionary, corpus_bow, texts, min_topic=2, max_top
     return model_lst, coherence_values_lst
 
 
-# example with Borderline subreddits
+# example LDA with Borderline subreddits
 # select "Borderline" subreddits
 data = df.loc[df.subreddit.str.contains('orderline')]
 
@@ -220,7 +220,9 @@ optimal_model = model_list[best_result_index]
 
 # produce a pyLDAvis visualization of the optimal model and save it
 p = gensimvis.prepare(optimal_model, corpus, id2word)
-pyLDAvis.save_html(p, '/home/a/p_borderline.html')
+pyLDAvis.save_html(p, os.path.join("Reddit", "borderline_LDA.html"))
 
 # save the model
-optimal_model.save('/PATH/lda_model.model')
+lda_folder = os.path.join("Reddit", "LDA models")
+os.mkdir(lda_folder)
+optimal_model.save(os.path.join(lda_folder, "lda_model_borderline.model"))
