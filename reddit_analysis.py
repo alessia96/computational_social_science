@@ -32,7 +32,7 @@ def clean(text):
     # all lowercase
     text = text.lower()
     # remove stopwords
-    text = " ".join([word for word in text.split() if word not in stop_words])
+    text = " ".join([word for word in text.split() if word not in set(stopwords.words("english"))])
     # remove urls
     text = re.sub("https?:\/\/.*[\r\n]*", "", text)
     # remove punctuation
@@ -44,13 +44,12 @@ def clean(text):
     return text
 
 
-stop_words = set(stopwords.words("english"))
 # nlp = spacy.load('en_core_web_sm')
-wordnet_lemmatizer = WordNetLemmatizer()
+lemmatizer = WordNetLemmatizer()
 
 df['clean'] = df.apply(lambda row: clean(row['post']), axis=1)
 df['token'] = df.apply(lambda row: nltk.word_tokenize(row['clean']), axis=1)
-df['lemma'] = df.token.apply(lambda lst: [wordnet_lemmatizer.lemmatize(word, pos='v') for word in lst])
+df['lemma'] = df.token.apply(lambda lst: [lemmatizer.lemmatize(word, pos='v') for word in lst])
 df.lemma = [' '.join(i) for i in df.lemma]
 
 # save cleaned df
@@ -149,46 +148,46 @@ def plot_wordcloud(lemmas):
 
 # example plot top 25 words and wordcloud for borderline subreddits
 
-plot_top_words(borderline_lemmas, 25, 'violet')
+plot_top_words(borderline_lemmas.split(), 25, 'violet')
 plot_wordcloud(borderline_lemmas)
 
 
 # LDA
 
 # Compute c_v coherence for various number of topics
-def compute_coherence_values(dictionary, corpus, texts, start=2, limit=10, step=1):
+def compute_coherence_values(dictionary, corpus_bow, texts, min_topic=2, max_topic=10, steps=1):
     """
     Parameters
     ----------
     dictionary: dictionary created from texts
-    corpus: bag of words created from texts and dictionary
+    corpus_bow: bag of words created from texts and dictionary
     texts: list of strings
-    start: number of topics to start with - default=2
-    limit: maximum number of topics - default=10
-    step: step between number of topics
+    min_topic: minimum number of topics - default=2
+    max_topic: maximum number of topics - default=2
+    steps: step between number of topics
 
     Returns
     -------
     list of lda models
     list of coherence values for each model
     """
-    coherence_values = []
-    model_list = []
-    for num_topics in range(start, limit, step):
+    coherence_values_lst = []
+    model_lst = []
+    for num_topics in range(min_topic, max_topic, steps):
         print(f'number of topics: {num_topics}')
-        model = LdaModel(corpus=corpus,
-                         id2word=id2word,
+        model = LdaModel(corpus=corpus_bow,
+                         id2word=dictionary,
                          num_topics=num_topics,
                          random_state=42,
                          chunksize=100,
                          alpha='auto',
                          per_word_topics=True)
-        model_list.append(model)
+        model_lst.append(model)
         coherencemodel = CoherenceModel(model=model, texts=texts, dictionary=dictionary, coherence='c_v')
-        coherence_values.append(coherencemodel.get_coherence())
+        coherence_values_lst.append(coherencemodel.get_coherence())
         print('done')
         print('_______________')
-    return model_list, coherence_values
+    return model_lst, coherence_values_lst
 
 
 # example with Borderline subreddits
@@ -204,18 +203,15 @@ id2word = Dictionary(data)
 corpus = [id2word.doc2bow(text) for text in data]
 
 # compute best LDA model with different k (number of topics)
-limit = 20
-start = 2
-step = 1
-model_list, coherence_values = compute_coherence_values(dictionary=id2word, corpus=corpus, texts=data, start=start,
-                                                        limit=limit, step=step)
+model_list, coherence_values = compute_coherence_values(dictionary=id2word, corpus_bow=corpus, texts=data,
+                                                        min_topic=2, max_topic=20, steps=1)
 
 # plot a graph with the results
-x = range(start, limit, step)
+x = range(2, 20, 1)
 plt.plot(x, coherence_values, ls='-', marker='o')
 plt.xlabel("Num Topics")
 plt.ylabel("Coherence score")
-plt.legend(("coherence_values"), loc='best')
+plt.legend("coherence_values", loc='best')
 plt.show()
 
 # find the best model (higher coherence value)
