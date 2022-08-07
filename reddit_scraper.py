@@ -12,7 +12,7 @@ class Scraper:
         self.output_path = output_path
 
     def date2timestamp(self, data):
-       return int(time.mktime(datetime.strptime(data, "%Y/%m/%d").timetuple()))
+        return int(time.mktime(datetime.strptime(data, "%Y/%m/%d").timetuple()))
 
     def next_day(self, data):
         tmrw = datetime.strptime(data, "%Y/%m/%d") + timedelta(days=1)
@@ -44,13 +44,11 @@ class Scraper:
         url = 'https://api.pushshift.io/reddit/search/submission/?subreddit={}&sort=desc&sort_type=created_utc&after={}&before={}&size={}'.format(
             subreddit_name, start, end, size)
         try:
-            posts = requests.get(url)
-            posts = posts.json()
+            posts = requests.get(url).json()
             posts = posts['data']
         except:
             time.sleep(30)
-            posts = requests.get(url)
-            posts = posts.json()
+            posts = requests.get(url).json()
             posts = posts['data']
 
         dataframe = pd.DataFrame(columns=['subreddit', 'author', 'date', 'post'])
@@ -62,7 +60,7 @@ class Scraper:
                     try:
                         if detect(text) == 'en':
                             dataframe = dataframe.append(
-                                {'subreddit': subreddit, 'author': post['author'], 'date': start_date,
+                                {'subreddit': subreddit_name, 'author': post['author'], 'date': start_date,
                                  'post': post['title'] + ' ' + post['selftext']}, ignore_index=True)
                     except:
                         continue
@@ -96,7 +94,7 @@ class Scraper:
                 if subr != last_s:
                     if last_s:
                         print(f"{last_s} done \n")
-                        print("_"*25)
+                        print("_" * 25)
                     print(f"starting with {subr}")
                     last_s = subr
                 print(subreddit_df.shape[0])
