@@ -39,8 +39,8 @@ df = pd.read_csv(os.path.join("Reddit", "subreddit_cleaned.csv"))
 
 # create TF-IDF matrix from lemmatized posts
 tfidf = tfidf_matrix(df.lemma)
-tfidf.insert(loc=0, column="SUBREDDIT", value=df.subreddit)
-
+tfidf.insert(loc=0, column="SUBREDDIT", value=list(df.subreddit))
+tfidf.insert(loc=0, column="USER", value=list(df.user))
 
 # MODELS AND PREDICTIONS
 
@@ -134,20 +134,20 @@ def plot_models_results(train_scores, test_scores, group=0):
 
 
 # get train and test scores for all classification methods
-train_score, test_score = classification(tfidf[tfidf.columns[2:]], tfidf.GROUP, test_size=0.2)
-plot_models_results(train_score, test_score, group=0)
+train_score, test_score = classification(tfidf[tfidf.columns[3:]], tfidf.Y, test_size=0.2)
+#plot_models_results(train_score, test_score, group=0)
 
 # repeat all for Bipolar and Borderline
 # select bipolar and borderline subreddits
 btfidf = tfidf.loc[tfidf.SUBREDDIT.str.contains('orderline')]
 btfidf = btfidf.append(tfidf.loc[tfidf.SUBREDDIT.str.contains('ipolar')])
 
-btarget = [0 if "orderline" in subr else 0 for subr in btfidf.SUBREDDIT]
+btarget = [0 if "orderline" in subr else 1 for subr in btfidf.SUBREDDIT]
 
 # noinspection PyTypeChecker
-btfidf["GROUP"] = btarget
+btfidf["Y"] = btarget
 
-train_score2, test_score2 = classification(btfidf[btfidf.columns[1:]], btfidf.GROUP, test_size=0.2)
+train_score2, test_score2 = classification(btfidf[btfidf.columns[3:]], btfidf.Y, test_size=0.2)
 
 # create dataframe containing all scores for both groups
 performances = pd.DataFrame({'method': [i[0] for i in train_score],
@@ -284,8 +284,8 @@ def plot_estimates(model, X, y, features):
     plt.show()
 
 
-feat_names = tfidf.columns[2:]
-x_train, x_test, y_train, y_test = train_test_split(tfidf[feat_names], tfidf.GROUP, test_size=0.2, random_state=42)
+feat_names = tfidf.columns[3:]
+x_train, x_test, y_train, y_test = train_test_split(tfidf[feat_names], tfidf.Y, test_size=0.2, random_state=42)
 LR = LogisticRegression(random_state=42)
 LR.fit(x_train, y_train)
 y_pred = LR.predict(x_test)

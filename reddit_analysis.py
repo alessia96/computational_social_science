@@ -224,7 +224,7 @@ def plot_wordcloud(lemmas):
 
 # load the dataset
 df = pd.read_csv(os.path.join("Reddit", "subreddit_data.csv"))
-df = df.loc[~df.author.str.contains('AutoModerator')]
+df = df.loc[~df.user.str.contains('AutoModerator')]
 df = df.dropna()
 
 # Cleaning and lemmatization
@@ -272,8 +272,8 @@ plot_wordcloud(borderline_lemmas)
 
 # example LDA with Borderline subreddits
 
-bth = set(border.author.unique()).intersection(set(bipolar.author.unique()))
-border = border.loc[~border.author.isin(bth)]
+bth = set(border.user.unique()).intersection(set(bipolar.user.unique()))
+border = border.loc[~border.user.isin(bth)]
 
 lda = LDA(border.lemma)
 
@@ -290,4 +290,3 @@ optimal_model.save(os.path.join(lda_folder, "lda_model_borderline.model"))
 data, dictionary, corpus = lda.to_lda()
 p = gensimvis.prepare(optimal_model, corpus, dictionary)
 pyLDAvis.save_html(p, os.path.join(lda_folder, "borderline_LDA.html"))
-

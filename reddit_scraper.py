@@ -36,7 +36,7 @@ class Scraper:
         size: maximum number of posts per day
         Returns
         -------
-        dataframe containing subreddit, author, date and post for each post in subreddit
+        dataframe containing subreddit, user, date and post for each post in subreddit
         """
         start = self.date2timestamp(start_date)
         end = self.date2timestamp(end_date)
@@ -51,7 +51,7 @@ class Scraper:
             posts = requests.get(url).json()
             posts = posts['data']
 
-        dataframe = pd.DataFrame(columns=['subreddit', 'author', 'date', 'post'])
+        dataframe = pd.DataFrame(columns=['subreddit', 'user', 'date', 'post'])
 
         for post in posts:
             if 'selftext' in post:  # check if selftext parameter exists
@@ -60,7 +60,7 @@ class Scraper:
                     try:
                         if detect(text) == 'en':
                             dataframe = dataframe.append(
-                                {'subreddit': subreddit_name, 'author': post['author'], 'date': start_date,
+                                {'subreddit': subreddit_name, 'user': post['user'], 'date': start_date,
                                  'post': post['title'] + ' ' + post['selftext']}, ignore_index=True)
                     except:
                         continue
@@ -79,10 +79,10 @@ class Scraper:
         -------
 
         """
-        # for each subreddit in the given list save a csv file containing 4 columns: subreddit, author, date, post
+        # for each subreddit in the given list save a csv file containing 4 columns: subreddit, user, date, post
         for subr in subreddit_list:
             last_s = None
-            subreddit_df = pd.DataFrame(columns=['subreddit', 'author', 'date', 'post'])
+            subreddit_df = pd.DataFrame(columns=['subreddit', 'user', 'date', 'post'])
             days_local = self.list_of_days(start_date, end_date)
             while subreddit_df.shape[0] < 30000 and days_local:
                 idx = random.randint(0, len(days_local) - 1)
